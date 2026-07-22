@@ -756,10 +756,25 @@ function detectUserLocation() {
 }
 
 function recalculateDistances() {
-  state.restaurants.forEach(rest => {
-    const dLat = rest.lat - state.userLocation.lat;
-    const dLng = rest.lng - state.userLocation.lng;
-    const distKm = Math.sqrt(dLat * dLat + dLng * dLng) * 111.32;
+  const totalRests = state.restaurants.length || 1;
+  state.restaurants.forEach((rest, idx) => {
+    let dLat = rest.lat - state.userLocation.lat;
+    let dLng = rest.lng - state.userLocation.lng;
+    let distKm = Math.sqrt(dLat * dLat + dLng * dLng) * 111.32;
+
+    // If restaurant is over 35km away (user's phone GPS is in another city/country),
+    // dynamically anchor mock/fallback venues around user's phone GPS (0.4km to 3.2km away)
+    if (distKm > 35 && !String(rest.id).startsWith("g_")) {
+      const angle = (idx / totalRests) * 2 * Math.PI;
+      const distOffset = 0.004 + ((idx % 8) * 0.0025);
+      rest.lat = state.userLocation.lat + Math.sin(angle) * distOffset;
+      rest.lng = state.userLocation.lng + Math.cos(angle) * distOffset;
+      
+      dLat = rest.lat - state.userLocation.lat;
+      dLng = rest.lng - state.userLocation.lng;
+      distKm = Math.sqrt(dLat * dLat + dLng * dLng) * 111.32;
+    }
+
     rest.distance = parseFloat(distKm.toFixed(1));
   });
 }
@@ -835,6 +850,10 @@ function applyFilters() {
 }
 
 function sortAndRenderFiltered() {
+  if (state.filtered.length === 0 && state.restaurants.length > 0) {
+    state.filtered = [...state.restaurants];
+  }
+
   // Apply sorting algorithm
   state.filtered.sort((a, b) => {
     if (state.sortBy === "rating") return b.rating - a.rating;
