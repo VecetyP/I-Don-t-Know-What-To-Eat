@@ -584,6 +584,38 @@ function setupEventListeners() {
     }
   });
 
+  // City Location Chips
+  const locationChips = document.querySelectorAll(".location-chip");
+  locationChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      locationChips.forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      
+      const lat = parseFloat(chip.dataset.lat);
+      const lng = parseFloat(chip.dataset.lng);
+      const name = chip.dataset.name;
+
+      state.userLocation.lat = lat;
+      state.userLocation.lng = lng;
+
+      const badgeText = document.getElementById("locationText");
+      if (badgeText) badgeText.innerText = `${name} Center`;
+
+      const coordsText = document.getElementById("mapCoordsText");
+      if (coordsText) coordsText.innerText = `GPS: ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E`;
+
+      if (state.googleMap) {
+        state.googleMap.setCenter(state.userLocation);
+        if (state.userMarker) state.userMarker.setPosition(state.userLocation);
+        fetchLiveGooglePlaces();
+      }
+
+      recalculateDistances();
+      applyFilters();
+      playAudioTick();
+    });
+  });
+
   // Sort dropdown
   document.getElementById("sortSelect").addEventListener("change", (e) => {
     state.sortBy = e.target.value;
