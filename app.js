@@ -1117,18 +1117,24 @@ window.initGoogleMap = function() {
 };
 
 function fetchLiveGooglePlaces() {
-  if (!state.googleMap || typeof google === "undefined" || !google.maps.places) return;
+  if (!state.googleMap || typeof google === "undefined" || !google.maps.places) {
+    state.restaurants = getCombinedRestaurants([]);
+    recalculateDistances();
+    applyFilters();
+    return;
+  }
 
   const service = new google.maps.places.PlacesService(state.googleMap);
   const request = {
     location: state.userLocation,
-    radius: Math.min(state.maxRadius * 1000, 5000),
+    radius: Math.max(state.maxRadius * 1000, 3000),
     type: ["restaurant", "food", "cafe"]
   };
 
   service.nearbySearch(request, (results, status) => {
+    let liveRestaurants = [];
     if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
-      const liveRestaurants = results.map((place, idx) => {
+      liveRestaurants = results.map((place, idx) => {
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
         
@@ -1147,16 +1153,43 @@ function fetchLiveGooglePlaces() {
           lat: lat,
           lng: lng,
           address: place.vicinity || "Local Area",
-          phone: "+65 Live Google Data",
+          phone: "Live Google Data",
           description: `Live Google Place • ${place.user_ratings_total || 0} reviews on Google Maps.`,
           dietary: inferDietaryFromTypes(place.types)
         };
       });
-
-      state.restaurants = [...liveRestaurants];
-      applyFilters();
     }
+
+    state.restaurants = getCombinedRestaurants(liveRestaurants);
+    recalculateDistances();
+    applyFilters();
   });
+}
+
+function getCombinedRestaurants(liveList = []) {
+  let customSpots = [];
+  try {
+    const saved = localStorage.getItem(STORAGE_CUSTOM_KEY);
+    if (saved) customSpots = JSON.parse(saved);
+  } catch (e) {}
+
+  const adaptedMocks = INITIAL_MOCK_RESTAURANTS.map((mock, idx) => {
+    const angle = (idx / INITIAL_MOCK_RESTAURANTS.length) * 2 * Math.PI;
+    const distOffset = 0.005 + (idx * 0.003);
+    const mockLat = state.userLocation.lat + Math.sin(angle) * distOffset;
+    const mockLng = state.userLocation.lng + Math.cos(angle) * distOffset;
+    
+    return {
+      ...mock,
+      lat: mockLat,
+      lng: mockLng
+    };
+  });
+
+  if (liveList.length > 0) {
+    return [...liveList, ...customSpots];
+  }
+  return [...adaptedMocks, ...customSpots];
 }
 
 function inferCuisineFromTypes(types = []) {
