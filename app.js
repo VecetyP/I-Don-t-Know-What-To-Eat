@@ -1147,24 +1147,22 @@ function fetchLiveGooglePlaces() {
   }
 
   const service = new google.maps.places.PlacesService(state.googleMap);
+  const searchRadius = Math.max(state.maxRadius * 1000, 3000);
   const request = {
     location: new google.maps.LatLng(state.userLocation.lat, state.userLocation.lng),
-    radius: Math.max(state.maxRadius * 1000, 3000),
-    type: "restaurant"
+    radius: searchRadius,
+    keyword: "food OR restaurant OR cafe OR dining"
   };
 
-  service.nearbySearch(request, (results, status) => {
-    window.lastGooglePlacesStatus = `${status} (${results ? results.length : 0} results)`;
-    console.log("Google Places API Response Status:", status, "Results:", results ? results.length : 0);
-    
-    let liveRestaurants = [];
-    if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
-      if (hudBadge) hudBadge.innerText = `Live Google Maps (${results.length} Real Places)`;
+  let accumulatedPlaces = [];
 
-      liveRestaurants = results.map((place, idx) => {
+  const handlePlacesResult = (results, status, pagination) => {
+    window.lastGooglePlacesStatus = `${status} (${accumulatedPlaces.length + (results ? results.length : 0)} places)`;
+
+    if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+      const parsed = results.map((place, idx) => {
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
-        
         const dLat = lat - state.userLocation.lat;
         const dLng = lng - state.userLocation.lng;
         const distKm = parseFloat((Math.sqrt(dLat * dLat + dLng * dLng) * 111.32).toFixed(1));
@@ -1185,21 +1183,41 @@ function fetchLiveGooglePlaces() {
           dietary: inferDietaryFromTypes(place.types)
         };
       });
-      state.restaurants = liveRestaurants;
-    } else {
-      if (hudBadge) {
-        if (status === "REQUEST_DENIED") {
-          hudBadge.innerText = "Places API Disabled in Google Cloud (Demo Mode)";
-        } else {
-          hudBadge.innerText = `Google Places: ${status} (Demo Mode)`;
-        }
-      }
-      state.restaurants = getCombinedRestaurants([]);
-    }
 
-    recalculateDistances();
-    applyFilters();
-  });
+      parsed.forEach(p => {
+        if (!accumulatedPlaces.some(existing => existing.name.toLowerCase() === p.name.toLowerCase())) {
+          accumulatedPlaces.push(p);
+        }
+      });
+
+      if (hudBadge) hudBadge.innerText = `Live Google Maps (${accumulatedPlaces.length} Real Places)`;
+      state.restaurants = accumulatedPlaces;
+      recalculateDistances();
+      applyFilters();
+
+      // Automatically load page 2 & 3 (up to 60 places)
+      if (pagination && pagination.hasNextPage && accumulatedPlaces.length < 60) {
+        setTimeout(() => {
+          pagination.nextPage();
+        }, 1500);
+      }
+    } else {
+      if (accumulatedPlaces.length === 0) {
+        if (hudBadge) {
+          if (status === "REQUEST_DENIED") {
+            hudBadge.innerText = "Places API Disabled in Google Cloud (Demo Mode)";
+          } else {
+            hudBadge.innerText = `Google Places: ${status} (Demo Mode)`;
+          }
+        }
+        state.restaurants = getCombinedRestaurants([]);
+        recalculateDistances();
+        applyFilters();
+      }
+    }
+  };
+
+  service.nearbySearch(request, handlePlacesResult);
 }
 
 function getCombinedRestaurants(liveList = []) {
