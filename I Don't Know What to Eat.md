@@ -77,6 +77,18 @@ The web application operates entirely client-side for ease of deployment, fast p
   - Added `vercel.json` and `package.json` build scripts for Vercel deployment.
   - Fixed mobile touch scrolling by enabling `overflow-y: auto !important` and native `-webkit-overflow-scrolling: touch` under `@media (max-width: 1100px)`.
 
+### 2026-07-23
+- Resolved Google Maps JavaScript Engine initialization and `CONFIG` scope issues:
+  - Added multi-source API key resolution (`config.js`, Vercel environment, and browser `LocalStorage` override).
+  - Built an interactive **Google Maps Diagnostics Wrench Modal (🔧)** in the UI for real-time API status inspecting and key saving.
+  - Built a standalone isolated diagnostic testing page `test_map.html`.
+- Google Places API Multi-Page & Broad Search Enhancements:
+  - Upgraded `fetchLiveGooglePlaces()` to handle Google Places API pagination (`pagination.nextPage()`), fetching up to 60+ real local dining spots.
+  - Expanded search query keyword to `"food OR restaurant OR cafe OR dining"` to capture cafes, bakeries, food courts, and hawker centers.
+  - Implemented dynamic GPS auto-anchoring in `recalculateDistances()` so mock/fallback venues adapt around user's phone GPS anywhere on Earth.
+- UI Polish & Cleanups:
+  - Removed "v2.0 Pro" badge and temporary "Quick Location" selection chips from `index.html`.
+
 ---
 
 ## Problems & Solutions
@@ -86,6 +98,7 @@ The web application operates entirely client-side for ease of deployment, fast p
 | Handling missing Google Maps API keys gracefully | Implemented a dedicated MapManager in `app.js` that checks for Google Maps loading status and automatically renders a beautiful, interactive SVG fallback map if the script fails to load or no key is provided. |
 | Audio feedback without external MP3 asset dependency | Built a pure Web Audio API synthesizer in `app.js` that generates lightweight oscillator ticks, reel lock tones, and multi-note victory chimes directly in code. |
 | Locked scrolling on mobile phones | Changed `html, body`, `.app-container`, and `.app-workspace` under mobile media queries to `overflow-y: auto !important`, `height: auto !important`, and `-webkit-overflow-scrolling: touch` to allow smooth native vertical scrolling on iOS and Android. |
+| CORS block when running `config.js` locally | Built browser `LocalStorage` API key persistence so users can paste API keys directly into the UI without needing local file server setups or exposing keys in git. |
 
 ---
 
