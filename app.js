@@ -1002,16 +1002,23 @@ window.gm_authFailure = function() {
 const STORAGE_API_KEY = "idk_google_maps_api_key_v2";
 
 function getGoogleMapsApiKey() {
-  if (typeof CONFIG !== "undefined" && CONFIG.GOOGLE_MAPS_API_KEY && CONFIG.GOOGLE_MAPS_API_KEY.trim() !== "") {
-    return CONFIG.GOOGLE_MAPS_API_KEY.trim();
-  }
-  if (typeof window.GOOGLE_MAPS_API_KEY !== "undefined" && window.GOOGLE_MAPS_API_KEY.trim() !== "") {
-    return window.GOOGLE_MAPS_API_KEY.trim();
-  }
+  try {
+    if (window.CONFIG && window.CONFIG.GOOGLE_MAPS_API_KEY && window.CONFIG.GOOGLE_MAPS_API_KEY.trim() !== "") {
+      return window.CONFIG.GOOGLE_MAPS_API_KEY.trim();
+    }
+  } catch (e) {}
+
+  try {
+    if (window.GOOGLE_MAPS_API_KEY && window.GOOGLE_MAPS_API_KEY.trim() !== "") {
+      return window.GOOGLE_MAPS_API_KEY.trim();
+    }
+  } catch (e) {}
+
   try {
     const saved = localStorage.getItem(STORAGE_API_KEY);
     if (saved && saved.trim() !== "") return saved.trim();
   } catch (e) {}
+
   return "";
 }
 
