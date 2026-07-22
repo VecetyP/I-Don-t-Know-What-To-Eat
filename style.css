@@ -1953,23 +1953,55 @@ button, input, select, textarea {
   100% { r: 42px; opacity: 0; }
 }
 
-/* Responsive Styles */
+/* Responsive Styles & Touch Mobile Scrolling Fix */
 @media (max-width: 1100px) {
+  html, body {
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .app-container {
+    height: auto !important;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  
   .app-workspace {
     flex-direction: column;
-    overflow-y: auto;
+    height: auto !important;
+    overflow: visible;
   }
+  
   .sidebar-panel {
     width: 100%;
-    height: auto;
-    overflow-y: visible;
+    height: auto !important;
+    max-height: none;
+    overflow: visible;
   }
+  
   .viewer-panel {
-    min-height: 600px;
+    width: 100%;
+    min-height: 550px;
+    height: auto !important;
+    overflow: visible;
   }
+  
+  .tab-content {
+    height: auto !important;
+    min-height: 500px;
+  }
+
+  .map-container {
+    height: 450px !important;
+  }
+
   .wheel-stage {
     flex-direction: column;
   }
+  
   .wheel-side-controls {
     width: 100%;
     flex-direction: row;
@@ -1977,13 +2009,8 @@ button, input, select, textarea {
 }
 
 @media (max-width: 768px) {
-  body {
-    overflow-y: auto;
-    height: auto;
-  }
   .app-container {
     padding: 8px;
-    height: auto;
   }
   .app-header {
     flex-direction: column;
@@ -1995,19 +2022,13 @@ button, input, select, textarea {
     flex-wrap: wrap;
   }
   .wheel-canvas-container {
-    width: 330px;
-    height: 330px;
+    width: 310px;
+    height: 310px;
   }
   .spin-trigger-btn {
     width: 70px;
     height: 70px;
     font-size: 1rem;
-  }
-  .slot-reels-frame {
-    grid-template-columns: 1fr;
-  }
-  .reel-divider {
-    display: none;
   }
   .battle-arena {
     flex-direction: column;
