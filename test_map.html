@@ -2,53 +2,104 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google Maps Standalone Diagnostic Test</title>
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; }
-    #status { padding: 12px; background: #111; border-bottom: 1px solid #333; }
-    #map { width: 100%; height: calc(100% - 50px); }
+    html, body { height: 100%; margin: 0; padding: 0; background: #0b0f17; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    #status { padding: 16px; background: #111827; border-bottom: 1px solid #374151; font-size: 0.95rem; line-height: 1.5; }
+    #log { padding: 12px 16px; background: #000; font-family: monospace; font-size: 0.82rem; max-height: 140px; overflow-y: auto; color: #9ca3af; border-bottom: 1px solid #374151; }
+    #map { width: 100%; height: calc(100% - 210px); min-height: 350px; background: #1f2937; }
+    .success { background: #064e3b !important; color: #6ee7b7 !important; }
+    .error { background: #450a0a !important; color: #fca5a5 !important; }
+    .warn { background: #451a03 !important; color: #fde047 !important; }
+    code { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; }
   </style>
-  <script src="config.js"></script>
 </head>
 <body>
-  <div id="status">⏳ Initializing Google Maps API test...</div>
+  <div id="status">⏳ Diagnostic Engine Starting...</div>
+  <div id="log"></div>
   <div id="map"></div>
 
+  <script src="config.js" onerror="window.configFailed = true;"></script>
+  
   <script>
-    const statusEl = document.getElementById("status");
-    
-    window.gm_authFailure = function() {
-      statusEl.innerHTML = "❌ <strong>Google Auth Failure!</strong> Check Google Cloud Console API Key restrictions or Billing activation.";
-      statusEl.style.background = "#450a0a";
-      statusEl.style.color = "#fca5a5";
-    };
-
-    if (typeof CONFIG === "undefined" || !CONFIG.GOOGLE_MAPS_API_KEY) {
-      statusEl.innerHTML = "⚠️ <strong>No CONFIG.GOOGLE_MAPS_API_KEY found in config.js!</strong>";
-    } else {
-      statusEl.innerHTML = "🔑 Key Found (" + CONFIG.GOOGLE_MAPS_API_KEY.substring(0, 8) + "...). Fetching Google Maps Script...";
-      
-      const script = document.createElement("script");
-      script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(CONFIG.GOOGLE_MAPS_API_KEY.trim()) + "&libraries=places&callback=initTestMap";
-      script.async = true;
-      script.defer = true;
-      script.onerror = function() {
-        statusEl.innerHTML = "❌ <strong>Network / CDN Error!</strong> Failed to load script from maps.googleapis.com.";
-      };
-      document.head.appendChild(script);
+    function log(msg) {
+      console.log(msg);
+      const logDiv = document.getElementById("log");
+      if (logDiv) {
+        logDiv.innerHTML += "<div>" + new Date().toLocaleTimeString() + " — " + msg + "</div>";
+        logDiv.scrollTop = logDiv.scrollHeight;
+      }
     }
 
+    const statusEl = document.getElementById("status");
+
+    window.gm_authFailure = function() {
+      log("❌ window.gm_authFailure triggered by Google!");
+      statusEl.className = "error";
+      statusEl.innerHTML = "❌ <strong>Google API Key Authentication Failure!</strong><br>Google Cloud rejected this API Key. Check:<br>1. <strong>Maps JavaScript API</strong> must be enabled in Google Cloud Console.<br>2. <strong>Billing Account</strong> must be linked to your Google Cloud project.<br>3. <strong>API Key Restrictions</strong>: Ensure HTTP Referrer restrictions allow your current URL.";
+    };
+
+    window.addEventListener("DOMContentLoaded", function() {
+      log("DOM Content Loaded.");
+
+      if (window.configFailed || typeof CONFIG === "undefined") {
+        log("⚠️ config.js not found or failed to load.");
+        statusEl.className = "warn";
+        statusEl.innerHTML = "⚠️ <strong>config.js is missing or failed to load.</strong><br>If running on Vercel: Ensure <code>GOOGLE_MAPS_API_KEY</code> environment variable is set.<br>If running locally: Ensure <code>config.js</code> exists in the project root.";
+        return;
+      }
+
+      const apiKey = (CONFIG.GOOGLE_MAPS_API_KEY || "").trim();
+      if (!apiKey) {
+        log("⚠️ CONFIG.GOOGLE_MAPS_API_KEY is empty.");
+        statusEl.className = "warn";
+        statusEl.innerHTML = "⚠️ <strong>CONFIG.GOOGLE_MAPS_API_KEY is blank.</strong> Add your Google Maps API Key to <code>config.js</code>.";
+        return;
+      }
+
+      log("🔑 API Key detected: " + apiKey.substring(0, 8) + "..." + apiKey.substring(apiKey.length - 4));
+      statusEl.innerHTML = "🔑 API Key Detected (" + apiKey.substring(0, 8) + "...). Fetching Google Maps CDN Script...";
+
+      // Inject Google Maps Script
+      const script = document.createElement("script");
+      script.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(apiKey) + "&libraries=places&callback=initTestMap&loading=async";
+      script.async = true;
+      script.defer = true;
+      
+      script.onerror = function(err) {
+        log("❌ Script onerror triggered. Failed to reach maps.googleapis.com");
+        statusEl.className = "error";
+        statusEl.innerHTML = "❌ <strong>Network / CDN Error!</strong> Browser failed to fetch script from <code>maps.googleapis.com</code>. Check internet connection or ad-blockers.";
+      };
+
+      log("Injecting script tag into head...");
+      document.head.appendChild(script);
+    });
+
     function initTestMap() {
+      log("✅ initTestMap callback invoked by Google Maps!");
       try {
-        const map = new google.maps.Map(document.getElementById("map"), {
+        const mapEl = document.getElementById("map");
+        const map = new google.maps.Map(mapEl, {
           center: { lat: 1.29027, lng: 103.85195 },
-          zoom: 14
+          zoom: 14,
+          disableDefaultUI: false
         });
-        statusEl.innerHTML = "✅ <strong>SUCCESS!</strong> Google Maps rendered successfully.";
-        statusEl.style.background = "#064e3b";
-        statusEl.style.color = "#6ee7b7";
+
+        new google.maps.Marker({
+          position: { lat: 1.29027, lng: 103.85195 },
+          map: map,
+          title: "Test Marker"
+        });
+
+        log("✅ google.maps.Map instance created successfully.");
+        statusEl.className = "success";
+        statusEl.innerHTML = "✅ <strong>SUCCESS! Google Maps is 100% Active & Rendering!</strong>";
       } catch (err) {
-        statusEl.innerHTML = "❌ <strong>JavaScript Error:</strong> " + err.message;
+        log("❌ Error inside initTestMap: " + err.message);
+        statusEl.className = "error";
+        statusEl.innerHTML = "❌ <strong>JavaScript Map Error:</strong> " + err.message;
       }
     }
   </script>
