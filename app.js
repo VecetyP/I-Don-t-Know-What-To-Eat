@@ -952,17 +952,27 @@ function toggleFavorite(id) {
 window.gm_authFailure = function() {
   console.warn("Google Maps API Authentication Failure. Falling back to Vector Radar Map.");
   initFallbackMap();
+  const hudBadge = document.querySelector(".hud-badge-status span:last-child");
+  if (hudBadge) {
+    hudBadge.innerText = "Vector Radar Map (Google Maps API Auth Issue)";
+  }
 };
 
 function loadGoogleMapsScript() {
-  const hasKey = typeof CONFIG !== "undefined" && CONFIG.GOOGLE_MAPS_API_KEY;
+  const hasKey = typeof CONFIG !== "undefined" && CONFIG.GOOGLE_MAPS_API_KEY && CONFIG.GOOGLE_MAPS_API_KEY.trim() !== "";
   
   if (hasKey) {
+    if (document.getElementById("googleMapsScript")) return;
+
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places&callback=initGoogleMap`;
+    script.id = "googleMapsScript";
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(CONFIG.GOOGLE_MAPS_API_KEY.trim())}&libraries=places&callback=initGoogleMap&loading=async`;
     script.async = true;
     script.defer = true;
-    script.onerror = () => initFallbackMap();
+    script.onerror = (e) => {
+      console.warn("Failed to load Google Maps script from CDN.", e);
+      initFallbackMap();
+    };
     document.head.appendChild(script);
   } else {
     initFallbackMap();
@@ -970,49 +980,66 @@ function loadGoogleMapsScript() {
 }
 
 window.initGoogleMap = function() {
-  document.getElementById("fallbackMap").style.display = "none";
+  console.log("Google Maps API loaded successfully.");
+  const fallback = document.getElementById("fallbackMap");
   const mapElement = document.getElementById("googleMap");
   
-  state.googleMap = new google.maps.Map(mapElement, {
-    center: state.userLocation,
-    zoom: 15,
-    styles: GOOGLE_MAP_DARK_STYLES,
-    disableDefaultUI: true,
-    zoomControl: true
-  });
+  if (fallback) fallback.style.display = "none";
+  if (mapElement) {
+    mapElement.style.display = "block";
+    mapElement.style.zIndex = "5";
+  }
 
-  new google.maps.Marker({
-    position: state.userLocation,
-    map: state.googleMap,
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 10,
-      fillColor: "#06b6d4",
-      fillOpacity: 1,
-      strokeColor: "#ffffff",
-      strokeWeight: 2
-    },
-    title: "Your Location"
-  });
+  try {
+    state.googleMap = new google.maps.Map(mapElement, {
+      center: state.userLocation,
+      zoom: 15,
+      styles: GOOGLE_MAP_DARK_STYLES,
+      disableDefaultUI: false,
+      zoomControl: true,
+      mapTypeControl: false,
+      streetViewControl: false
+    });
 
-  const searchInput = document.getElementById("searchInput");
-  state.googleAutocomplete = new google.maps.places.Autocomplete(searchInput);
-  state.googleAutocomplete.bindTo("bounds", state.googleMap);
-  
-  state.googleAutocomplete.addListener("place_changed", () => {
-    const place = state.googleAutocomplete.getPlace();
-    if (!place.geometry || !place.geometry.location) return;
-    
-    state.userLocation.lat = place.geometry.location.lat();
-    state.userLocation.lng = place.geometry.location.lng();
-    state.googleMap.setCenter(state.userLocation);
-    state.googleMap.setZoom(15);
-    
-    recalculateDistances();
+    state.userMarker = new google.maps.Marker({
+      position: state.userLocation,
+      map: state.googleMap,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: "#06b6d4",
+        fillOpacity: 1,
+        strokeColor: "#ffffff",
+        strokeWeight: 2
+      },
+      title: "Your Location"
+    });
+
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput && google.maps.places) {
+      state.googleAutocomplete = new google.maps.places.Autocomplete(searchInput);
+      state.googleAutocomplete.bindTo("bounds", state.googleMap);
+      
+      state.googleAutocomplete.addListener("place_changed", () => {
+        const place = state.googleAutocomplete.getPlace();
+        if (!place.geometry || !place.geometry.location) return;
+        
+        state.userLocation.lat = place.geometry.location.lat();
+        state.userLocation.lng = place.geometry.location.lng();
+        state.googleMap.setCenter(state.userLocation);
+        state.googleMap.setZoom(15);
+        
+        recalculateDistances();
+        fetchLiveGooglePlaces();
+      });
+    }
+
+    renderMapMarkers();
     fetchLiveGooglePlaces();
-  });
-
-  fetchLiveGooglePlaces();
+  } catch (err) {
+    console.error("Error initializing Google Maps:", err);
+    initFallbackMap();
+  }
 };
 
 function fetchLiveGooglePlaces() {
