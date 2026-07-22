@@ -999,15 +999,38 @@ window.gm_authFailure = function() {
   }
 };
 
+const STORAGE_API_KEY = "idk_google_maps_api_key_v2";
+
+function getGoogleMapsApiKey() {
+  if (typeof CONFIG !== "undefined" && CONFIG.GOOGLE_MAPS_API_KEY && CONFIG.GOOGLE_MAPS_API_KEY.trim() !== "") {
+    return CONFIG.GOOGLE_MAPS_API_KEY.trim();
+  }
+  if (typeof window.GOOGLE_MAPS_API_KEY !== "undefined" && window.GOOGLE_MAPS_API_KEY.trim() !== "") {
+    return window.GOOGLE_MAPS_API_KEY.trim();
+  }
+  try {
+    const saved = localStorage.getItem(STORAGE_API_KEY);
+    if (saved && saved.trim() !== "") return saved.trim();
+  } catch (e) {}
+  return "";
+}
+
+function saveGoogleMapsApiKey(key) {
+  try {
+    localStorage.setItem(STORAGE_API_KEY, key.trim());
+  } catch (e) {}
+}
+
 function loadGoogleMapsScript() {
-  const hasKey = typeof CONFIG !== "undefined" && CONFIG.GOOGLE_MAPS_API_KEY && CONFIG.GOOGLE_MAPS_API_KEY.trim() !== "";
+  const apiKey = getGoogleMapsApiKey();
   
-  if (hasKey) {
-    if (document.getElementById("googleMapsScript")) return;
+  if (apiKey) {
+    const existingScript = document.getElementById("googleMapsScript");
+    if (existingScript) existingScript.remove();
 
     const script = document.createElement("script");
     script.id = "googleMapsScript";
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(CONFIG.GOOGLE_MAPS_API_KEY.trim())}&libraries=places&callback=initGoogleMap&loading=async`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places&callback=initGoogleMap&loading=async`;
     script.async = true;
     script.defer = true;
     script.onerror = (e) => {
@@ -1602,10 +1625,9 @@ function renderDiagnostics() {
   const container = document.getElementById("debugContent");
   if (!container) return;
 
-  const hasConfig = typeof CONFIG !== "undefined";
-  const apiKey = hasConfig ? CONFIG.GOOGLE_MAPS_API_KEY : "";
-  const hasKey = Boolean(apiKey && apiKey.trim() !== "");
-  const maskedKey = hasKey ? `${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}` : "None";
+  const activeKey = getGoogleMapsApiKey();
+  const hasKey = Boolean(activeKey && activeKey.trim() !== "");
+  const maskedKey = hasKey ? `${activeKey.substring(0, 8)}...${activeKey.substring(activeKey.length - 4)}` : "None";
 
   const scriptTag = document.getElementById("googleMapsScript");
   const hasScriptTag = Boolean(scriptTag);
@@ -1640,11 +1662,23 @@ function renderDiagnostics() {
         <span>Active Map Engine:</span>
         <strong style="color:${isMapInstanceActive ? '#34d399' : '#f87171'};">${isMapInstanceActive ? 'Google Maps Engine 🗺️' : 'Vector Radar Map Mode 📡'}</strong>
       </div>
-      
-      <div style="padding:10px 12px; background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.3); border-radius:6px; font-size:0.8rem; color:#a5f3fc; line-height:1.4; margin-top:4px;">
-        💡 <strong>Instant Test:</strong> Tap "Open Standalone Test Page" below to run <a href="test_map.html" target="_blank" style="color:#fff; text-decoration:underline;">test_map.html</a>. If test_map.html works, your key & billing are 100% active!
+
+      <div style="padding:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; margin-top:4px; display:flex; flex-direction:column; gap:6px;">
+        <label style="font-size:0.78rem; font-weight:600; color:var(--text-muted);">Paste Google Maps API Key (Saved to Browser LocalStorage):</label>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="manualApiKeyInput" value="${activeKey}" placeholder="AIzaSy..." style="flex:1; background:rgba(0,0,0,0.4); border:1px solid var(--border-light); padding:8px 10px; border-radius:4px; color:#fff; font-family:monospace; font-size:0.8rem;">
+          <button id="saveApiKeyBtn" style="padding:8px 14px; background:var(--primary); color:#fff; border:none; border-radius:4px; font-weight:700; cursor:pointer;">Save</button>
+        </div>
       </div>
     </div>
   `;
+
+  document.getElementById("saveApiKeyBtn").addEventListener("click", () => {
+    const inputVal = document.getElementById("manualApiKeyInput").value.trim();
+    saveGoogleMapsApiKey(inputVal);
+    alert("API Key saved to LocalStorage! Reloading Google Maps...");
+    loadGoogleMapsScript();
+    renderDiagnostics();
+  });
 }
 
