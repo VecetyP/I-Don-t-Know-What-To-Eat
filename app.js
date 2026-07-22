@@ -1136,7 +1136,10 @@ window.initGoogleMap = function() {
 };
 
 function fetchLiveGooglePlaces() {
+  const hudBadge = document.querySelector(".hud-badge-status span:last-child");
+
   if (!state.googleMap || typeof google === "undefined" || !google.maps.places) {
+    if (hudBadge) hudBadge.innerText = "Vector Radar Map (Demo Mode)";
     state.restaurants = getCombinedRestaurants([]);
     recalculateDistances();
     applyFilters();
@@ -1145,14 +1148,18 @@ function fetchLiveGooglePlaces() {
 
   const service = new google.maps.places.PlacesService(state.googleMap);
   const request = {
-    location: state.userLocation,
+    location: new google.maps.LatLng(state.userLocation.lat, state.userLocation.lng),
     radius: Math.max(state.maxRadius * 1000, 3000),
-    type: ["restaurant", "food", "cafe"]
+    type: "restaurant"
   };
 
   service.nearbySearch(request, (results, status) => {
+    console.log("Google Places API Response Status:", status, "Results:", results ? results.length : 0);
+    
     let liveRestaurants = [];
     if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+      if (hudBadge) hudBadge.innerText = `Live Google Maps (${results.length} Real Places)`;
+
       liveRestaurants = results.map((place, idx) => {
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
@@ -1177,9 +1184,18 @@ function fetchLiveGooglePlaces() {
           dietary: inferDietaryFromTypes(place.types)
         };
       });
+      state.restaurants = liveRestaurants;
+    } else {
+      if (hudBadge) {
+        if (status === "REQUEST_DENIED") {
+          hudBadge.innerText = "Places API Disabled in Google Cloud (Demo Mode)";
+        } else {
+          hudBadge.innerText = `Google Places: ${status} (Demo Mode)`;
+        }
+      }
+      state.restaurants = getCombinedRestaurants([]);
     }
 
-    state.restaurants = getCombinedRestaurants(liveRestaurants);
     recalculateDistances();
     applyFilters();
   });
