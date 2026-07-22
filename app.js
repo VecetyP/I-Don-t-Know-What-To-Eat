@@ -210,6 +210,20 @@ let state = {
   battleRound: 1
 };
 
+// Google Maps Dark Style Preset
+const GOOGLE_MAP_DARK_STYLES = [
+  { elementType: "geometry", stylers: [{ color: "#0f131a" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#0f131a" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#74808a" }] },
+  { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#c8d0d6" }] },
+  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#a5b4fc" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#13271d" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1b212f" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#252e42" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#312e81" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#132a42" }] }
+];
+
 // Audio Synthesizer Context
 let audioCtx = null;
 
@@ -681,6 +695,11 @@ function detectUserLocation() {
         
         recalculateDistances();
         applyFilters();
+
+        if (state.googleMap) {
+          state.googleMap.setCenter(state.userLocation);
+          fetchLiveGooglePlaces();
+        }
       },
       (error) => {
         badge.classList.remove("active-gps");
@@ -930,6 +949,11 @@ function toggleFavorite(id) {
 // ==========================================================================
 // 11. Google Maps & Interactive Vector Radar Map Engine
 // ==========================================================================
+window.gm_authFailure = function() {
+  console.warn("Google Maps API Authentication Failure. Falling back to Vector Radar Map.");
+  initFallbackMap();
+};
+
 function loadGoogleMapsScript() {
   const hasKey = typeof CONFIG !== "undefined" && CONFIG.GOOGLE_MAPS_API_KEY;
   
@@ -1496,16 +1520,3 @@ function handleAddSpotSubmit(e) {
   showWinnerDetails(newSpot, "Custom Restaurant Added!");
 }
 
-// Google Maps Dark Style Preset
-const GOOGLE_MAP_DARK_STYLES = [
-  { elementType: "geometry", stylers: [{ color: "#0f131a" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#0f131a" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#74808a" }] },
-  { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#c8d0d6" }] },
-  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#a5b4fc" }] },
-  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#13271d" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1b212f" }] },
-  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#252e42" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#312e81" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#132a42" }] }
-];
