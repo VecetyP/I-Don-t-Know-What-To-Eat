@@ -21,7 +21,7 @@ python -m http.server 8000
 ```
 Then navigate to [http://localhost:8000](http://localhost:8000) in your web browser.
 
-### 2. Configure Google Maps API (Optional)
+### 2. Configure Google Maps API
 To use real live restaurant data and coordinates instead of mock data:
 1. Copy `config.example.js` to `config.js`.
 2. Add your Google Maps API key (with Geolocation, Places, and Maps Javascript API enabled) inside `config.js`:
