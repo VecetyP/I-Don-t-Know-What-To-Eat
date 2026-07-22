@@ -1,15 +1,14 @@
 # I Don't Know What to Eat
 
-A premium, interactive restaurant discoverability and filtering web application designed to solve the age-old dilemma of deciding where to dine.
+An interactive restaurant discoverability and filtering web application designed to solve the age-old dilemma of deciding where to eat.
 
-## 🚀 Features
-- **Aesthetic Glassmorphic UI:** Modern dark-mode panels with smooth transitions and CSS-driven micro-interactions.
+## Features
 - **Location-Based Recommendations:** Automatic IP or browser Geolocation detection to center local dining options.
 - **Advanced Filtering & Sorting:** Narrow down choices by cuisine type, price point, rating, distance, and current operating hours.
-- **Surprise Me Roulette:** A custom-drawn HTML5 canvas decision wheel that takes your active search results, renders a spinning wheel, and dynamically picks a restaurant for you.
-- **Google Maps Integration:** Renders map pins, info-windows, and search autocomplete via the Google Maps JavaScript API (with a seamless interactive SVG mock map fallback if no API key is set).
+- **Restaurant Roulette:** A decision wheel that dynamically picks a restaurant for you.
+- **Google Maps Integration:** Renders map pins, info-windows, and search autocomplete via the Google Maps JavaScript API
 
-## 🛠️ How to Run Locally
+## How to Run Locally
 
 ### 1. Launch Server
 Run the local launcher script:
