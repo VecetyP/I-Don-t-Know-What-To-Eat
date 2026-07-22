@@ -1154,6 +1154,7 @@ function fetchLiveGooglePlaces() {
   };
 
   service.nearbySearch(request, (results, status) => {
+    window.lastGooglePlacesStatus = `${status} (${results ? results.length : 0} results)`;
     console.log("Google Places API Response Status:", status, "Results:", results ? results.length : 0);
     
     let liveRestaurants = [];
@@ -1747,6 +1748,11 @@ function renderDiagnostics() {
       <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
         <span>Active Map Engine:</span>
         <strong style="color:${isMapInstanceActive ? '#34d399' : '#f87171'};">${isMapInstanceActive ? 'Google Maps Engine 🗺️' : 'Vector Radar Map Mode 📡'}</strong>
+      </div>
+
+      <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+        <span>Places API Response:</span>
+        <strong style="color:${(window.lastGooglePlacesStatus || '').includes('OK') ? '#34d399' : '#fde047'};">${window.lastGooglePlacesStatus || 'Not Query Dynamic Places Yet'}</strong>
       </div>
 
       <div style="padding:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:8px; margin-top:4px; display:flex; flex-direction:column; gap:6px;">
