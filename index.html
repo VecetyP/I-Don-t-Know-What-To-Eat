@@ -283,6 +283,7 @@
                 <button id="mapZoomIn" class="map-ctrl-btn" title="Zoom In"><i data-lucide="plus"></i></button>
                 <button id="mapZoomOut" class="map-ctrl-btn" title="Zoom Out"><i data-lucide="minus"></i></button>
                 <button id="mapRecenter" class="map-ctrl-btn" title="Recenter to User"><i data-lucide="crosshair"></i></button>
+                <button id="mapDebugBtn" class="map-ctrl-btn" title="Map Diagnostics & Debugger"><i data-lucide="wrench"></i></button>
               </div>
               
               <!-- SVG Map Rendering Canvas -->
@@ -544,6 +545,24 @@
           <button type="submit" class="primary-btn glow-btn">Save Restaurant</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Map Diagnostics Modal -->
+  <div id="debugModal" class="modal-backdrop hidden">
+    <div class="modal-card glass-panel animate-scale">
+      <button class="modal-close-btn" id="closeDebugModalBtn"><i data-lucide="x"></i></button>
+      <div class="modal-header">
+        <h2><i data-lucide="wrench" class="text-cyan"></i> Google Maps Diagnostics</h2>
+        <p>Live API status & troubleshooting inspector</p>
+      </div>
+      <div class="modal-body debug-body" id="debugContent">
+        <!-- Injected via JS -->
+      </div>
+      <div class="modal-form-actions" style="margin-top: 14px; width: 100%;">
+        <a href="test_map.html" target="_blank" class="secondary-btn" style="text-decoration: none; text-align: center;">Open Standalone Test Page</a>
+        <button id="retryMapBtn" class="primary-btn glow-btn">Force Reload Google Maps</button>
+      </div>
     </div>
   </div>
   

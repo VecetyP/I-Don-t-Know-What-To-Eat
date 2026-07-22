@@ -645,6 +645,15 @@ function setupEventListeners() {
     switchTab("favView");
   });
 
+  // Map Debug Button & Modal
+  const mapDebugBtn = document.getElementById("mapDebugBtn");
+  if (mapDebugBtn) mapDebugBtn.addEventListener("click", openDebugModal);
+  document.getElementById("closeDebugModalBtn").addEventListener("click", closeDebugModal);
+  document.getElementById("retryMapBtn").addEventListener("click", () => {
+    closeDebugModal();
+    loadGoogleMapsScript();
+  });
+
   // Decision Wheel Spin Buttons
   document.getElementById("spinWheelBtn").addEventListener("click", spinWheel);
   document.getElementById("randomPickQuickBtn").addEventListener("click", () => {
@@ -1577,5 +1586,65 @@ function handleAddSpotSubmit(e) {
   applyFilters();
   playVictoryChime();
   showWinnerDetails(newSpot, "Custom Restaurant Added!");
+}
+
+// Google Maps Diagnostics Engine
+function openDebugModal() {
+  renderDiagnostics();
+  document.getElementById("debugModal").classList.add("active");
+}
+
+function closeDebugModal() {
+  document.getElementById("debugModal").classList.remove("active");
+}
+
+function renderDiagnostics() {
+  const container = document.getElementById("debugContent");
+  if (!container) return;
+
+  const hasConfig = typeof CONFIG !== "undefined";
+  const apiKey = hasConfig ? CONFIG.GOOGLE_MAPS_API_KEY : "";
+  const hasKey = Boolean(apiKey && apiKey.trim() !== "");
+  const maskedKey = hasKey ? `${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 4)}` : "None";
+
+  const scriptTag = document.getElementById("googleMapsScript");
+  const hasScriptTag = Boolean(scriptTag);
+  const isGoogleDefined = typeof google !== "undefined";
+  const isMapsDefined = isGoogleDefined && typeof google.maps !== "undefined";
+  const isPlacesDefined = isMapsDefined && typeof google.maps.places !== "undefined";
+  const isMapInstanceActive = Boolean(state.googleMap);
+
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:8px; font-size:0.84rem; text-align:left;">
+      <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+        <span>API Key Configured:</span>
+        <strong style="color:${hasKey ? '#34d399' : '#f87171'};">${hasKey ? 'YES (' + maskedKey + ')' : 'NO'}</strong>
+      </div>
+      
+      <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+        <span>Script Tag Injected:</span>
+        <strong style="color:${hasScriptTag ? '#34d399' : '#f87171'};">${hasScriptTag ? 'YES' : 'NO'}</strong>
+      </div>
+
+      <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+        <span>Google Maps JS API Objects:</span>
+        <strong style="color:${isMapsDefined ? '#34d399' : '#f87171'};">${isMapsDefined ? 'Loaded ✅' : 'Missing ❌'}</strong>
+      </div>
+
+      <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+        <span>Google Places API Library:</span>
+        <strong style="color:${isPlacesDefined ? '#34d399' : '#f87171'};">${isPlacesDefined ? 'Loaded ✅' : 'Missing ❌'}</strong>
+      </div>
+
+      <div style="padding:10px 14px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+        <span>Active Map Engine:</span>
+        <strong style="color:${isMapInstanceActive ? '#34d399' : '#f87171'};">${isMapInstanceActive ? 'Google Maps Engine 🗺️' : 'Vector Radar Map Mode 📡'}</strong>
+      </div>
+      
+      <div style="padding:10px 12px; background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.3); border-radius:6px; font-size:0.8rem; color:#a5f3fc; line-height:1.4; margin-top:4px;">
+        💡 <strong>Instant Test:</strong> Tap "Open Standalone Test Page" below to run <a href="test_map.html" target="_blank" style="color:#fff; text-decoration:underline;">test_map.html</a>. If test_map.html works, your key & billing are 100% active!
+      </div>
+    </div>
+  `;
 }
 
