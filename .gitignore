@@ -1,0 +1,16 @@
+# API keys, tokens and secret configurations
+config.js
+config.json
+.env
+.env.local
+.env.*.local
+
+# Dependency directories
+node_modules/
+dist/
+.cache/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+*.log

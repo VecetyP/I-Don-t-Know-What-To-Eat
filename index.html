@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I Don't Know What to Eat — Premium Restaurant Finder</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Lucide Icons (CDN) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark-theme">
+  
+  <!-- Background Glows -->
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+  
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="logo-emoji">🎡</span>
+        <div class="logo-text">
+          <h1>I Don't Know What to Eat</h1>
+          <p class="subtitle">Decide where to eat with style and zero stress</p>
+        </div>
+      </div>
+      
+      <!-- Current Location Status Indicator -->
+      <div class="location-status-badge" id="locationStatus">
+        <i data-lucide="map-pin" class="icon-pulse"></i>
+        <span id="locationText">Detecting Location...</span>
+      </div>
+    </header>
+    
+    <!-- Main Workspace -->
+    <main class="app-workspace">
+      
+      <!-- Sidebar Panel: Search & Filters -->
+      <aside class="sidebar-panel glass-panel">
+        <div class="panel-section">
+          <h3><i data-lucide="search"></i> Find Restaurants</h3>
+          <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search address, area or keywords..." value="Downtown Core">
+            <button id="searchBtn" class="primary-btn"><i data-lucide="arrow-right"></i></button>
+          </div>
+        </div>
+        
+        <div class="panel-section">
+          <h3><i data-lucide="sliders"></i> Filters</h3>
+          
+          <!-- Distance Radius Slider -->
+          <div class="filter-group">
+            <div class="filter-header">
+              <label for="radiusSlider">Search Radius</label>
+              <span id="radiusValue">2.5 km</span>
+            </div>
+            <input type="range" id="radiusSlider" min="0.5" max="10.0" step="0.5" value="2.5" class="slider">
+          </div>
+          
+          <!-- Price Selection -->
+          <div class="filter-group">
+            <label>Price Range</label>
+            <div class="price-selector" id="priceSelector">
+              <button class="price-btn active" data-price="1">$</button>
+              <button class="price-btn active" data-price="2">$$</button>
+              <button class="price-btn active" data-price="3">$$$</button>
+              <button class="price-btn active" data-price="4">$$$$</button>
+            </div>
+          </div>
+          
+          <!-- Rating Slider -->
+          <div class="filter-group">
+            <div class="filter-header">
+              <label for="ratingSlider">Minimum Rating</label>
+              <span id="ratingValue">4.0 ★</span>
+            </div>
+            <input type="range" id="ratingSlider" min="1.0" max="5.0" step="0.1" value="4.0" class="slider">
+          </div>
+          
+          <!-- Toggle Switches -->
+          <div class="filter-group switches">
+            <label class="switch-container">
+              <span class="switch-label">Open Now Only</span>
+              <input type="checkbox" id="openNowCheck" checked>
+              <span class="switch-toggle"></span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Cuisine Tag Filter -->
+        <div class="panel-section">
+          <h3><i data-lucide="utensils"></i> Cuisine Type</h3>
+          <div class="cuisine-tags" id="cuisineTags">
+            <button class="tag-btn active" data-cuisine="all">All Cuisines</button>
+            <button class="tag-btn" data-cuisine="Japanese">🍣 Japanese</button>
+            <button class="tag-btn" data-cuisine="Italian">🍕 Italian</button>
+            <button class="tag-btn" data-cuisine="American">🍔 American</button>
+            <button class="tag-btn" data-cuisine="Thai">🍲 Thai</button>
+            <button class="tag-btn" data-cuisine="Mexican">🌮 Mexican</button>
+            <button class="tag-btn" data-cuisine="Cafe">☕ Cafe & Dessert</button>
+            <button class="tag-btn" data-cuisine="Indian">🍛 Indian</button>
+          </div>
+        </div>
+        
+        <!-- Action Trigger -->
+        <button id="surpriseBtn" class="action-btn glow-button">
+          <i data-lucide="sparkles"></i> Let the Wheel Decide!
+        </button>
+      </aside>
+      
+      <!-- Primary Viewer Panel -->
+      <section class="viewer-panel">
+        <!-- Panel Tabs -->
+        <div class="viewer-tabs">
+          <button class="tab-link active" data-tab="mapView"><i data-lucide="map"></i> Map Viewer</button>
+          <button class="tab-link" data-tab="listView"><i data-lucide="list"></i> Restaurant List (<span id="matchCount">0</span>)</button>
+          <button class="tab-link" data-tab="wheelView" id="wheelTabBtn"><i data-lucide="disc"></i> Wheel of Food</button>
+        </div>
+        
+        <!-- Tab Content: Map View -->
+        <div class="tab-content active" id="mapView">
+          <div class="map-container glass-panel">
+            <!-- Google Maps gets injected here, fallback content starts inside -->
+            <div id="googleMap" class="map-render-area"></div>
+            
+            <!-- Fallback interactive SVG layout for local demo when no API keys are loaded -->
+            <div id="fallbackMap" class="fallback-map-view">
+              <div class="fallback-map-hud">
+                <span class="hud-badge"><i data-lucide="alert-triangle"></i> Fallback Interactive Mock Map</span>
+                <span class="hud-coords">GPS Center: 1°17'56.3"N, 103°51'11.5"E</span>
+              </div>
+              <svg id="svgMap" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- SVG map components will be injected dynamically -->
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tab Content: List View -->
+        <div class="tab-content" id="listView">
+          <div class="list-wrapper scrollbar-themed" id="restaurantList">
+            <!-- Restaurant cards injected dynamically -->
+          </div>
+        </div>
+        
+        <!-- Tab Content: Wheel View -->
+        <div class="tab-content" id="wheelView">
+          <div class="wheel-panel glass-panel">
+            <div class="wheel-instructions">
+              <h2>Let's Spin for Lunch/Dinner!</h2>
+              <p>We loaded the <strong id="wheelCountText">0</strong> filtered restaurants onto the wheel. Click the spin button to choose one randomly!</p>
+            </div>
+            
+            <div class="wheel-canvas-container">
+              <div class="wheel-pointer"></div>
+              <canvas id="wheelCanvas" width="450" height="450"></canvas>
+              <button id="spinWheelBtn" class="spin-trigger-btn">SPIN!</button>
+            </div>
+          </div>
+        </div>
+        
+      </section>
+      
+    </main>
+  </div>
+  
+  <!-- Winning Restaurant Popup Modal -->
+  <div class="modal-backdrop" id="winnerModal">
+    <div class="modal-card glass-panel animate-scale">
+      <button class="modal-close-btn" id="closeModalBtn"><i data-lucide="x"></i></button>
+      
+      <div class="modal-decoration">
+        <i data-lucide="trophy" class="trophy-icon"></i>
+        <span class="confetti-label">Today's Choice!</span>
+      </div>
+      
+      <div class="modal-body">
+        <div class="cuisine-pill" id="winnerCuisine">Italian</div>
+        <h2 id="winnerName">Bella Pasta</h2>
+        
+        <div class="meta-row">
+          <div class="rating-stars">
+            <span id="winnerRating">4.7</span> <span class="stars">★★★★★</span>
+          </div>
+          <span class="dot-separator">•</span>
+          <span id="winnerPrice">$$</span>
+          <span class="dot-separator">•</span>
+          <span id="winnerDistance">1.2 km away</span>
+        </div>
+        
+        <p class="winner-desc" id="winnerDescription">Artisanal wood-fired pizzas, homemade pasta, and traditional desserts served in a cozy candle-lit setting.</p>
+        
+        <div class="details-grid">
+          <div class="detail-cell">
+            <i data-lucide="clock"></i>
+            <div>
+              <strong>Hours</strong>
+              <span id="winnerHours">Open Now (Closes 10:00 PM)</span>
+            </div>
+          </div>
+          <div class="detail-cell">
+            <i data-lucide="map-pin"></i>
+            <div>
+              <strong>Address</strong>
+              <span id="winnerAddress">18 Marina Boulevard, Tower 2</span>
+            </div>
+          </div>
+          <div class="detail-cell">
+            <i data-lucide="phone"></i>
+            <div>
+              <strong>Phone</strong>
+              <span id="winnerPhone">+65 6543 2109</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="spinAgainBtn" class="secondary-btn"><i data-lucide="rotate-ccw"></i> Spin Again</button>
+        <button id="navigateBtn" class="primary-btn"><i data-lucide="navigation"></i> Navigate There</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Config -->
+  <script src="config.js" onerror="console.log('No local config.js found; loading standard mock mode.')"></script>
+  
+  <!-- Load App Script -->
+  <script src="app.js"></script>
+</body>
+</html>
