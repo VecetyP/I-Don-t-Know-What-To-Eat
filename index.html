@@ -3,71 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>I Don't Know What to Eat — Premium Restaurant Finder</title>
+  <title>I Don't Know What to Eat — Ultimate Restaurant Finder & Decision Suite</title>
+  <meta name="description" content="Solve dining indecision with interactive decision wheels, slot machines, food battles, live maps, and smart filtering for local restaurants.">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheet -->
   <link rel="stylesheet" href="style.css">
   
-  <!-- Lucide Icons (CDN) -->
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="dark-theme">
   
-  <!-- Background Glows -->
-  <div class="bg-glow glow-1"></div>
-  <div class="bg-glow glow-2"></div>
+  <!-- Background Glow & Atmosphere -->
+  <div class="bg-glow glow-primary"></div>
+  <div class="bg-glow glow-cyan"></div>
+  <div class="bg-glow glow-amber"></div>
   
   <div class="app-container">
-    <!-- Header -->
-    <header class="app-header">
+    
+    <!-- Top Header Navigation -->
+    <header class="app-header glass-panel">
       <div class="logo-area">
-        <span class="logo-emoji">🎡</span>
+        <div class="logo-icon-wrapper">
+          <span class="logo-emoji">🍱</span>
+          <div class="logo-sparkle"></div>
+        </div>
         <div class="logo-text">
-          <h1>I Don't Know What to Eat</h1>
-          <p class="subtitle">Decide where to eat with style and zero stress</p>
+          <div class="brand-row">
+            <h1>I Don't Know What to Eat</h1>
+            <span class="version-tag">v2.0 Pro</span>
+          </div>
+          <p class="subtitle">End dining indecision with interactive roulette & smart local maps</p>
         </div>
       </div>
       
-      <!-- Current Location Status Indicator -->
-      <div class="location-status-badge" id="locationStatus">
-        <i data-lucide="map-pin" class="icon-pulse"></i>
-        <span id="locationText">Detecting Location...</span>
+      <!-- Top Action HUD -->
+      <div class="header-hud">
+        <!-- Location Badge -->
+        <div class="hud-item location-badge" id="locationStatus" title="Click to update location">
+          <i data-lucide="map-pin" class="icon-pulse"></i>
+          <span id="locationText">Detecting Location...</span>
+          <button id="relocateBtn" class="icon-only-btn" title="Refresh GPS Location">
+            <i data-lucide="refresh-cw"></i>
+          </button>
+        </div>
+        
+        <!-- Sound Toggle -->
+        <button id="soundToggleBtn" class="hud-item hud-btn active" title="Toggle Sound Effects">
+          <i data-lucide="volume-2" id="soundIcon"></i>
+          <span class="sound-label">Audio On</span>
+        </button>
+        
+        <!-- Favorites Shortcut -->
+        <button id="favQuickBtn" class="hud-item hud-btn" title="View Saved Favorites">
+          <i data-lucide="heart"></i>
+          <span>Saved (<strong id="favCountHeader">0</strong>)</span>
+        </button>
+        
+        <!-- Add Spot Button -->
+        <button id="addSpotBtn" class="primary-btn glow-btn add-spot-btn">
+          <i data-lucide="plus"></i>
+          <span>Add Custom Spot</span>
+        </button>
       </div>
     </header>
     
     <!-- Main Workspace -->
     <main class="app-workspace">
       
-      <!-- Sidebar Panel: Search & Filters -->
+      <!-- Sidebar Panel: Search & Smart Controls -->
       <aside class="sidebar-panel glass-panel">
+        
+        <!-- Search Section -->
         <div class="panel-section">
-          <h3><i data-lucide="search"></i> Find Restaurants</h3>
+          <div class="section-title">
+            <i data-lucide="search"></i>
+            <span>Search & Discover</span>
+          </div>
           <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Search address, area or keywords..." value="Downtown Core">
-            <button id="searchBtn" class="primary-btn"><i data-lucide="arrow-right"></i></button>
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Search dish, venue, or address..." autocomplete="off">
+            <button id="clearSearchBtn" class="clear-btn hidden" title="Clear Search">
+              <i data-lucide="x"></i>
+            </button>
+            <button id="searchBtn" class="primary-btn search-trigger-btn">
+              <i data-lucide="arrow-right"></i>
+            </button>
+          </div>
+          
+          <!-- Quick Presets Chips -->
+          <div class="preset-chips">
+            <span class="preset-label">Quick Vibe:</span>
+            <button class="preset-chip" data-preset="topRated">🔥 Top Rated</button>
+            <button class="preset-chip" data-preset="budget">💰 Budget Eats</button>
+            <button class="preset-chip" data-preset="nearby">⚡ Under 1km</button>
+            <button class="preset-chip" data-preset="lateNight">🌙 Open Late</button>
           </div>
         </div>
         
+        <!-- Filters Section -->
         <div class="panel-section">
-          <h3><i data-lucide="sliders"></i> Filters</h3>
+          <div class="section-title-row">
+            <div class="section-title">
+              <i data-lucide="sliders"></i>
+              <span>Refine Criteria</span>
+            </div>
+            <button id="resetFiltersBtn" class="reset-link-btn" title="Reset all filters">Reset</button>
+          </div>
           
-          <!-- Distance Radius Slider -->
+          <!-- Radius Slider -->
           <div class="filter-group">
             <div class="filter-header">
               <label for="radiusSlider">Search Radius</label>
-              <span id="radiusValue">2.5 km</span>
+              <span class="filter-val-badge" id="radiusValue">2.5 km</span>
             </div>
             <input type="range" id="radiusSlider" min="0.5" max="10.0" step="0.5" value="2.5" class="slider">
+            <div class="range-labels">
+              <span>0.5 km</span>
+              <span>5 km</span>
+              <span>10 km</span>
+            </div>
           </div>
           
-          <!-- Price Selection -->
+          <!-- Rating Slider -->
           <div class="filter-group">
-            <label>Price Range</label>
+            <div class="filter-header">
+              <label for="ratingSlider">Minimum Rating</label>
+              <span class="filter-val-badge rating-badge-val" id="ratingValue">4.0 ★</span>
+            </div>
+            <input type="range" id="ratingSlider" min="1.0" max="5.0" step="0.1" value="4.0" class="slider rating-slider">
+          </div>
+          
+          <!-- Price Range -->
+          <div class="filter-group">
+            <label class="filter-sublabel">Price Tier</label>
             <div class="price-selector" id="priceSelector">
               <button class="price-btn active" data-price="1">$</button>
               <button class="price-btn active" data-price="2">$$</button>
@@ -76,93 +150,237 @@
             </div>
           </div>
           
-          <!-- Rating Slider -->
-          <div class="filter-group">
-            <div class="filter-header">
-              <label for="ratingSlider">Minimum Rating</label>
-              <span id="ratingValue">4.0 ★</span>
-            </div>
-            <input type="range" id="ratingSlider" min="1.0" max="5.0" step="0.1" value="4.0" class="slider">
-          </div>
-          
-          <!-- Toggle Switches -->
+          <!-- Open Now Switch -->
           <div class="filter-group switches">
             <label class="switch-container">
-              <span class="switch-label">Open Now Only</span>
+              <div class="switch-text">
+                <span class="switch-label">Open Now Only</span>
+                <span class="switch-sub">Hide currently closed places</span>
+              </div>
               <input type="checkbox" id="openNowCheck" checked>
               <span class="switch-toggle"></span>
             </label>
           </div>
-        </div>
-        
-        <!-- Cuisine Tag Filter -->
-        <div class="panel-section">
-          <h3><i data-lucide="utensils"></i> Cuisine Type</h3>
-          <div class="cuisine-tags" id="cuisineTags">
-            <button class="tag-btn active" data-cuisine="all">All Cuisines</button>
-            <button class="tag-btn" data-cuisine="Japanese">🍣 Japanese</button>
-            <button class="tag-btn" data-cuisine="Italian">🍕 Italian</button>
-            <button class="tag-btn" data-cuisine="American">🍔 American</button>
-            <button class="tag-btn" data-cuisine="Thai">🍲 Thai</button>
-            <button class="tag-btn" data-cuisine="Mexican">🌮 Mexican</button>
-            <button class="tag-btn" data-cuisine="Cafe">☕ Cafe & Dessert</button>
-            <button class="tag-btn" data-cuisine="Indian">🍛 Indian</button>
+          
+          <!-- Dietary Restrictions Filter -->
+          <div class="filter-group">
+            <label class="filter-sublabel">Dietary & Preferences</label>
+            <div class="dietary-tags" id="dietaryTags">
+              <button class="diet-btn" data-diet="vegan">🌿 Vegan</button>
+              <button class="diet-btn" data-diet="vegetarian">🥗 Vegetarian</button>
+              <button class="diet-btn" data-diet="halal">🌙 Halal</button>
+              <button class="diet-btn" data-diet="glutenFree">🌾 Gluten-Free</button>
+            </div>
           </div>
         </div>
         
-        <!-- Action Trigger -->
-        <button id="surpriseBtn" class="action-btn glow-button">
-          <i data-lucide="sparkles"></i> Let the Wheel Decide!
-        </button>
+        <!-- Cuisine Tags Section -->
+        <div class="panel-section">
+          <div class="section-title">
+            <i data-lucide="utensils-crossed"></i>
+            <span>Cuisine Categories</span>
+          </div>
+          <div class="cuisine-tags" id="cuisineTags">
+            <button class="tag-btn active" data-cuisine="all">
+              <span class="tag-icon">🍽️</span> All Cuisines
+            </button>
+            <button class="tag-btn" data-cuisine="Japanese">
+              <span class="tag-icon">🍣</span> Japanese
+            </button>
+            <button class="tag-btn" data-cuisine="Italian">
+              <span class="tag-icon">🍕</span> Italian
+            </button>
+            <button class="tag-btn" data-cuisine="American">
+              <span class="tag-icon">🍔</span> American
+            </button>
+            <button class="tag-btn" data-cuisine="Thai">
+              <span class="tag-icon">🍲</span> Thai
+            </button>
+            <button class="tag-btn" data-cuisine="Mexican">
+              <span class="tag-icon">🌮</span> Mexican
+            </button>
+            <button class="tag-btn" data-cuisine="Cafe">
+              <span class="tag-icon">☕</span> Cafe & Bakery
+            </button>
+            <button class="tag-btn" data-cuisine="Indian">
+              <span class="tag-icon">🍛</span> Indian
+            </button>
+            <button class="tag-btn" data-cuisine="Chinese">
+              <span class="tag-icon">🥢</span> Chinese
+            </button>
+          </div>
+        </div>
+        
+        <!-- Action Hero Buttons -->
+        <div class="sidebar-hero-actions">
+          <button id="surpriseBtn" class="action-btn glow-btn primary-action">
+            <i data-lucide="sparkles"></i> Spin the Food Wheel!
+          </button>
+          <button id="battleQuickBtn" class="secondary-action-btn full-width-btn">
+            <i data-lucide="swords"></i> Start Food Battle Tournament
+          </button>
+        </div>
       </aside>
       
-      <!-- Primary Viewer Panel -->
+      <!-- Primary Interactive Viewer Panel -->
       <section class="viewer-panel">
-        <!-- Panel Tabs -->
-        <div class="viewer-tabs">
-          <button class="tab-link active" data-tab="mapView"><i data-lucide="map"></i> Map Viewer</button>
-          <button class="tab-link" data-tab="listView"><i data-lucide="list"></i> Restaurant List (<span id="matchCount">0</span>)</button>
-          <button class="tab-link" data-tab="wheelView" id="wheelTabBtn"><i data-lucide="disc"></i> Wheel of Food</button>
+        
+        <!-- Navigation Bar Tabs -->
+        <div class="viewer-top-bar glass-panel">
+          <div class="viewer-tabs">
+            <button class="tab-link active" data-tab="mapView">
+              <i data-lucide="map"></i> Interactive Map
+            </button>
+            <button class="tab-link" data-tab="listView">
+              <i data-lucide="list"></i> Restaurant List 
+              <span class="badge-count" id="matchCount">0</span>
+            </button>
+            <button class="tab-link" data-tab="wheelView" id="wheelTabBtn">
+              <i data-lucide="disc"></i> Wheel of Food
+            </button>
+            <button class="tab-link" data-tab="battleView" id="battleTabBtn">
+              <i data-lucide="swords"></i> Food Battle
+            </button>
+            <button class="tab-link" data-tab="favView" id="favTabBtn">
+              <i data-lucide="heart"></i> Favorites 
+              <span class="badge-count fav-badge" id="favCountTab">0</span>
+            </button>
+          </div>
         </div>
         
-        <!-- Tab Content: Map View -->
+        <!-- TAB 1: Map View -->
         <div class="tab-content active" id="mapView">
           <div class="map-container glass-panel">
-            <!-- Google Maps gets injected here, fallback content starts inside -->
+            <!-- Google Maps canvas -->
             <div id="googleMap" class="map-render-area"></div>
             
-            <!-- Fallback interactive SVG layout for local demo when no API keys are loaded -->
+            <!-- Fallback Interactive Vector Map -->
             <div id="fallbackMap" class="fallback-map-view">
-              <div class="fallback-map-hud">
-                <span class="hud-badge"><i data-lucide="alert-triangle"></i> Fallback Interactive Mock Map</span>
-                <span class="hud-coords">GPS Center: 1°17'56.3"N, 103°51'11.5"E</span>
+              <!-- Map Controls HUD Overlay -->
+              <div class="map-hud-top">
+                <div class="hud-badge-status">
+                  <span class="pulse-dot"></span>
+                  <span>Interactive Vector Radar Map</span>
+                </div>
+                <div class="hud-center-coords">
+                  <i data-lucide="navigation-2"></i>
+                  <span id="mapCoordsText">GPS: 1°17'56.3"N, 103°51'11.5"E</span>
+                </div>
               </div>
-              <svg id="svgMap" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
-                <!-- SVG map components will be injected dynamically -->
+              
+              <!-- Map Control Buttons -->
+              <div class="map-hud-controls">
+                <button id="mapZoomIn" class="map-ctrl-btn" title="Zoom In"><i data-lucide="plus"></i></button>
+                <button id="mapZoomOut" class="map-ctrl-btn" title="Zoom Out"><i data-lucide="minus"></i></button>
+                <button id="mapRecenter" class="map-ctrl-btn" title="Recenter to User"><i data-lucide="crosshair"></i></button>
+              </div>
+              
+              <!-- SVG Map Rendering Canvas -->
+              <svg id="svgMap" viewBox="0 0 1000 650" xmlns="http://www.w3.org/2000/svg">
+                <!-- Injected via JavaScript -->
               </svg>
             </div>
+            
+            <!-- Selected Map Pin Preview Card -->
+            <div id="mapPreviewCard" class="map-preview-card glass-panel hidden">
+              <button class="preview-close" id="closeMapPreviewBtn"><i data-lucide="x"></i></button>
+              <div class="preview-content">
+                <div class="preview-header">
+                  <span class="preview-cuisine" id="prevCuisine">Italian</span>
+                  <span class="preview-rating" id="prevRating">★ 4.7</span>
+                </div>
+                <h3 id="prevName">Bella Pasta</h3>
+                <p id="prevAddress" class="preview-address">18 Marina Boulevard</p>
+                <div class="preview-footer">
+                  <span id="prevDistance">1.2 km</span>
+                  <span id="prevPrice">$$</span>
+                  <button id="prevDetailsBtn" class="primary-btn sm-btn">View Details</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         
-        <!-- Tab Content: List View -->
+        <!-- TAB 2: List View -->
         <div class="tab-content" id="listView">
-          <div class="list-wrapper scrollbar-themed" id="restaurantList">
-            <!-- Restaurant cards injected dynamically -->
+          <div class="list-container-panel glass-panel">
+            <div class="list-bar-header">
+              <div class="list-header-title">
+                <i data-lucide="list"></i>
+                <span>Filtered Dining Spots</span>
+              </div>
+              <div class="sort-controls-box">
+                <label for="sortSelect" class="sort-label">Sort by:</label>
+                <select id="sortSelect" class="styled-select">
+                  <option value="rating">★ Highest Rated</option>
+                  <option value="distance">📍 Nearest First</option>
+                  <option value="priceAsc">💰 Price: Low to High</option>
+                  <option value="priceDesc">💎 Price: High to Low</option>
+                  <option value="name">🔤 Name A-Z</option>
+                </select>
+              </div>
+            </div>
+            <div class="list-wrapper scrollbar-themed" id="restaurantList">
+              <!-- Dynamic cards injected via JS -->
+            </div>
           </div>
         </div>
         
-        <!-- Tab Content: Wheel View -->
+        <!-- TAB 3: Wheel of Food View -->
         <div class="tab-content" id="wheelView">
           <div class="wheel-panel glass-panel">
-            <div class="wheel-instructions">
-              <h2>Let's Spin for Lunch/Dinner!</h2>
-              <p>We loaded the <strong id="wheelCountText">0</strong> filtered restaurants onto the wheel. Click the spin button to choose one randomly!</p>
+            <div class="wheel-header">
+              <h2><i data-lucide="sparkles" class="text-amber"></i> Wheel of Food Roulette</h2>
+              <p>Spin the wheel to break your dining tie! Loaded with <strong id="wheelCountText" class="text-primary">0</strong> matching spots.</p>
             </div>
             
-            <div class="wheel-canvas-container">
-              <div class="wheel-pointer"></div>
-              <canvas id="wheelCanvas" width="450" height="450"></canvas>
-              <button id="spinWheelBtn" class="spin-trigger-btn">SPIN!</button>
+            <div class="wheel-stage">
+              <div class="wheel-canvas-container">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                <button id="spinWheelBtn" class="spin-trigger-btn">
+                  <span>SPIN!</span>
+                </button>
+              </div>
+              
+              <div class="wheel-side-controls">
+                <div class="wheel-stat-box glass-panel">
+                  <span class="stat-title">Active Pool</span>
+                  <span class="stat-number" id="wheelPoolSize">0</span>
+                  <span class="stat-sub">restaurants</span>
+                </div>
+                
+                <button id="randomPickQuickBtn" class="secondary-btn glow-border-btn">
+                  <i data-lucide="zap"></i> Instant Quick Pick
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- TAB 5: Food Battle View -->
+        <div class="tab-content" id="battleView">
+          <div class="battle-panel glass-panel">
+            <div class="battle-header">
+              <h2><i data-lucide="swords" class="text-cyan"></i> Food Face-Off Tournament</h2>
+              <p>Can't decide between two options? Vote round by round until 1 champion remains!</p>
+            </div>
+            
+            <div class="battle-arena" id="battleArena">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- TAB 6: Favorites View -->
+        <div class="tab-content" id="favView">
+          <div class="favorites-panel glass-panel">
+            <div class="fav-header">
+              <h2><i data-lucide="heart" class="text-rose"></i> Saved Favorite Restaurants</h2>
+              <p>Your curated bucket list of dining spots.</p>
+            </div>
+            <div class="list-wrapper scrollbar-themed" id="favRestaurantList">
+              <!-- Dynamic favorite cards -->
             </div>
           </div>
         </div>
@@ -172,37 +390,49 @@
     </main>
   </div>
   
-  <!-- Winning Restaurant Popup Modal -->
+  <!-- MODAL 1: Winner / Detail Popup -->
   <div class="modal-backdrop" id="winnerModal">
     <div class="modal-card glass-panel animate-scale">
-      <button class="modal-close-btn" id="closeModalBtn"><i data-lucide="x"></i></button>
+      <button class="modal-close-btn" id="closeModalBtn" title="Close Modal"><i data-lucide="x"></i></button>
       
       <div class="modal-decoration">
-        <i data-lucide="trophy" class="trophy-icon"></i>
-        <span class="confetti-label">Today's Choice!</span>
+        <div class="trophy-badge">
+          <i data-lucide="trophy" class="trophy-icon"></i>
+        </div>
+        <span class="confetti-label" id="winnerSubtitle">Today's Selected Venue!</span>
       </div>
       
       <div class="modal-body">
-        <div class="cuisine-pill" id="winnerCuisine">Italian</div>
+        <div class="modal-header-pills">
+          <span class="cuisine-pill" id="winnerCuisine">Italian</span>
+          <button id="winnerFavBtn" class="fav-toggle-btn" title="Save to Favorites">
+            <i data-lucide="heart" id="winnerFavIcon"></i>
+          </button>
+        </div>
+        
         <h2 id="winnerName">Bella Pasta</h2>
         
         <div class="meta-row">
           <div class="rating-stars">
-            <span id="winnerRating">4.7</span> <span class="stars">★★★★★</span>
+            <span id="winnerRating">4.7</span>
+            <span class="stars">★★★★★</span>
           </div>
           <span class="dot-separator">•</span>
-          <span id="winnerPrice">$$</span>
+          <span id="winnerPrice" class="meta-price">$$$</span>
           <span class="dot-separator">•</span>
-          <span id="winnerDistance">1.2 km away</span>
+          <span id="winnerDistance" class="meta-distance">1.2 km away</span>
         </div>
         
-        <p class="winner-desc" id="winnerDescription">Artisanal wood-fired pizzas, homemade pasta, and traditional desserts served in a cozy candle-lit setting.</p>
+        <p class="winner-desc" id="winnerDescription">Artisanal wood-fired pizzas, homemade pasta, and traditional tiramisu served in an upscale glass-walled setting.</p>
+        
+        <!-- Dietary Tags inside Modal -->
+        <div class="modal-diet-tags" id="winnerDietTags"></div>
         
         <div class="details-grid">
           <div class="detail-cell">
             <i data-lucide="clock"></i>
             <div>
-              <strong>Hours</strong>
+              <strong>Operating Hours</strong>
               <span id="winnerHours">Open Now (Closes 10:00 PM)</span>
             </div>
           </div>
@@ -216,7 +446,7 @@
           <div class="detail-cell">
             <i data-lucide="phone"></i>
             <div>
-              <strong>Phone</strong>
+              <strong>Phone Contact</strong>
               <span id="winnerPhone">+65 6543 2109</span>
             </div>
           </div>
@@ -224,16 +454,96 @@
       </div>
       
       <div class="modal-footer">
-        <button id="spinAgainBtn" class="secondary-btn"><i data-lucide="rotate-ccw"></i> Spin Again</button>
-        <button id="navigateBtn" class="primary-btn"><i data-lucide="navigation"></i> Navigate There</button>
+        <button id="spinAgainBtn" class="secondary-btn">
+          <i data-lucide="rotate-ccw"></i> Spin Again
+        </button>
+        <button id="navigateBtn" class="primary-btn glow-btn">
+          <i data-lucide="navigation"></i> Directions in Maps
+        </button>
       </div>
     </div>
   </div>
+  
+  <!-- MODAL 2: Add Custom Restaurant -->
+  <div class="modal-backdrop" id="addSpotModal">
+    <div class="modal-card glass-panel animate-scale">
+      <button class="modal-close-btn" id="closeAddSpotModalBtn"><i data-lucide="x"></i></button>
+      
+      <div class="modal-decoration simple-header">
+        <h2><i data-lucide="plus-circle" class="text-primary"></i> Add Custom Restaurant</h2>
+        <p>Save your favorite hidden gem to the local list!</p>
+      </div>
+      
+      <form id="addSpotForm" class="modal-body form-body">
+        <div class="form-group">
+          <label for="newSpotName">Restaurant Name *</label>
+          <input type="text" id="newSpotName" placeholder="e.g. Grandma's Secret Dumplings" required>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newSpotCuisine">Cuisine Type *</label>
+            <select id="newSpotCuisine" required>
+              <option value="Japanese">Japanese</option>
+              <option value="Italian">Italian</option>
+              <option value="American">American</option>
+              <option value="Thai">Thai</option>
+              <option value="Mexican">Mexican</option>
+              <option value="Cafe">Cafe & Bakery</option>
+              <option value="Indian">Indian</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="newSpotPrice">Price Tier</label>
+            <select id="newSpotPrice">
+              <option value="1">$ (Budget)</option>
+              <option value="2" selected>$$ (Moderate)</option>
+              <option value="3">$$$ (Upscale)</option>
+              <option value="4">$$$$ (Fine Dining)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="newSpotRating">Rating (1.0 to 5.0)</label>
+            <input type="number" id="newSpotRating" min="1" max="5" step="0.1" value="4.5">
+          </div>
+          
+          <div class="form-group">
+            <label for="newSpotDistance">Distance (km)</label>
+            <input type="number" id="newSpotDistance" min="0.1" max="50" step="0.1" value="1.0">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="newSpotAddress">Address / Location</label>
+          <input type="text" id="newSpotAddress" placeholder="e.g. 42 Orchard Road #01-05">
+        </div>
+        
+        <div class="form-group">
+          <label for="newSpotDesc">Short Description</label>
+          <textarea id="newSpotDesc" rows="2" placeholder="What makes this place special?"></textarea>
+        </div>
+        
+        <div class="modal-form-actions">
+          <button type="button" class="secondary-btn" id="cancelAddSpotBtn">Cancel</button>
+          <button type="submit" class="primary-btn glow-btn">Save Restaurant</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Canvas Confetti Container Overlay -->
+  <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
 
   <!-- Load Config -->
-  <script src="config.js" onerror="console.log('No local config.js found; loading standard mock mode.')"></script>
+  <script src="config.js" onerror="console.log('No local config.js found; running standard mock mode.')"></script>
   
-  <!-- Load App Script -->
+  <!-- Load Main App Script -->
   <script src="app.js"></script>
 </body>
 </html>

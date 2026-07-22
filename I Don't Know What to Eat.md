@@ -1,6 +1,6 @@
 ---
 project: I Don't Know What to Eat
-status: 💡 Idea
+status: 🚀 Active
 tags:
   - restaurant-filter
   - projects
@@ -11,18 +11,18 @@ language: HTML, CSS, JavaScript
 
 ## What It Is
 
-A premium, interactive restaurant discovery and filtering web application designed to solve the age-old dilemma of "What should we eat?". The app lets users pinpoint their location, apply advanced filters (cuisine, budget, distance, open-now status), view options on an interactive map using the Google Maps API, and spin a custom "Surprise Me" decision wheel when they are feeling indecisive.
+A premium, interactive restaurant discovery and decision suite web application designed to solve the age-old dilemma of "What should we eat?". The app features an interactive Decision Engine (Wheel of Fortune Roulette with physical audio ticks and Head-to-Head Food Battle Tournament), dietary restriction filters (Vegan, Vegetarian, Halal, Gluten-Free), interactive Google Maps & Vector Radar Map, and LocalStorage persistence for favorites and custom user spots.
 
 ---
 
 ## Goals
 
-- [ ] Implement a premium glassmorphic dark-mode user interface with responsive side-by-side filter and map/list views.
-- [ ] Integrate Google Maps JS API for location search, auto-complete, and marker mapping.
-- [ ] Implement a fallback/mock interactive SVG-based map component when Google API keys are not supplied.
-- [ ] Build a customizable "Surprise Me" selection wheel with smooth canvas spin animations and visual flair.
-- [ ] Develop comprehensive client-side sorting and multi-criteria filtering (cuisine, distance, rating, budget).
-- [ ] Build local storage capabilities to save favorite restaurants and past searches.
+- [x] Implement a premium glassmorphic dark-mode user interface with responsive side-by-side filter and map/list views.
+- [x] Integrate Google Maps JS API for location search, auto-complete, and marker mapping.
+- [x] Implement a fallback/mock interactive SVG-based map component with zoom/pan controls and pin preview cards.
+- [x] Build a customizable "Surprise Me" selection wheel with smooth canvas spin physics, audio ticks, and confetti particle burst.
+- [x] Develop comprehensive client-side sorting and multi-criteria filtering (cuisine, distance, rating, budget, dietary tags).
+- [x] Build local storage capabilities to save favorite restaurants and add custom hidden gem spots.
 
 ---
 
@@ -31,21 +31,23 @@ A premium, interactive restaurant discovery and filtering web application design
 | Layer | Tool / Language |
 |-------|----------------|
 | Language | HTML5, CSS3 (Vanilla), JavaScript (ES6+) |
-| Libraries | Google Maps JavaScript API, Lucide Icons (CDN) |
-| Storage | LocalStorage (Favorites, History, Custom Places) |
+| Libraries | Google Maps JavaScript API, Lucide Icons (CDN), Web Audio API |
+| Storage | LocalStorage (Favorites, Saved Custom Spots) |
 | Platform | Client-side Web Application |
 
 ---
 
 ## Architecture / How It Works
 
-The web application operates entirely client-side for ease of deployment and privacy:
-1. **User Interface (`index.html` & `style.css`):** Formed using a modern glassmorphic layout, using custom CSS variables for dark-mode colors, neon accents, and fluid grid systems. Responsive behavior shifts from side-by-side desktop panels to stackable tabs on mobile.
-2. **Core Logic (`app.js`):** Coordinates the application state:
-   - **Google Maps Wrapper:** Safely handles Google Maps initialization, fallback maps, and address autocomplete.
-   - **Filter Engine:** Performs fast client-side filtering on either fetched Google Places API results or an embedded local database of curated mock restaurants.
-   - **Decision Engine:** Renders the customized selection wheel using HTML5 Canvas, executing physical deceleration math to pick a random venue.
-3. **Configurations (`config.js`):** Separates user-specific configuration (like Google API keys) from application logic.
+The web application operates entirely client-side for ease of deployment, fast performance, and privacy:
+1. **User Interface (`index.html` & `style.css`):** Built with custom HSL color tokens, glassmorphism blur panels, glowing background accents, micro-interactions, responsive sidebars, custom range sliders, price selectors, and diet pills.
+2. **Master Logic Engine (`app.js`):** Coordinates application state:
+   - **Decision Engine:** Renders the Wheel of Fortune (HTML5 Canvas with deceleration physics and tick sound effects) and Food Battle (head-to-head tournament voting).
+   - **Synthesized Audio System:** Uses the browser Web Audio API to synthesize mechanical wheel ticks and victory chimes.
+   - **Vector Radar Map & Google Maps:** Seamlessly handles Google Maps when an API key is present or falls back to an interactive vector map with pin preview drawers and zoom controls.
+   - **Filter & Search Engine:** Instant multi-criteria evaluation with embedded list sorting (Rating, Distance, Price, Name) and preset chips.
+   - **LocalStorage Manager:** Stores bookmarked favorites and custom user restaurants.
+3. **Configurations (`config.js`):** Separates user Google Maps API key configuration from application code.
 
 ---
 
@@ -57,8 +59,19 @@ The web application operates entirely client-side for ease of deployment and pri
 - Set up a robust `.gitignore` file to prevent committing API keys or environment configs.
 - Built a premium glassmorphic frontend structure (`index.html`) with responsive sidebar filtering, search suggestions, visual map frame, and "Surprise Me" selection wheel interface.
 - Developed styled components (`style.css`) using custom HSL colors, glassmorphism blur effects, micro-interactions, and spin animations.
-- Created `app.js` containing mock data, location detection logic, visual SVG map placeholder, custom HTML5 Canvas wheel spin animator, and client-side query filter algorithms.
-- Configured a local test runner script (`start_server.bat`) using Python's http server module for instant development verification.
+- Remade the complete frontend into a v2.0 Pro decision suite:
+  - Added interactive decision modes: Wheel of Food and Head-to-Head Food Battle.
+  - Added Web Audio API synthesizer for realistic ticker sounds and victory chimes.
+  - Added Canvas Confetti particle FX for winning moments.
+  - Added Dietary Restriction filters (Vegan 🌿, Vegetarian 🥗, Halal 🌙, Gluten-Free 🌾) and quick preset filters (Top Rated, Budget Eats, Under 1km, Open Late).
+  - Added Favorites system and Add Custom Spot modal with LocalStorage persistence.
+  - Upgraded Fallback Vector Radar Map with zoom controls, pan controls, and pin preview popup drawer.
+- Cleaned up frontend layout based on user feedback:
+  - Fixed SVG pulse animations to animate circle radius `r` cleanly at pin positions.
+  - Improved contrast and contrast readability on spin action buttons.
+  - Removed popup modal inner scrollbar by compacting vertical paddings and details grid.
+  - Relocated Sort By dropdown inside the Restaurant List tab header and removed extra scrollbars on Wheel tab.
+  - Removed Food Slots feature completely across HTML, CSS, JS, and project documentation.
 
 ---
 
@@ -67,13 +80,13 @@ The web application operates entirely client-side for ease of deployment and pri
 | Problem | Solution / Notes |
 |---------|-----------------|
 | Handling missing Google Maps API keys gracefully | Implemented a dedicated MapManager in `app.js` that checks for Google Maps loading status and automatically renders a beautiful, interactive SVG fallback map if the script fails to load or no key is provided. |
+| Audio feedback without external MP3 asset dependency | Built a pure Web Audio API synthesizer in `app.js` that generates lightweight oscillator ticks, reel lock tones, and multi-note victory chimes directly in code. |
 
 ---
 
 ## Ideas & Future Features
 
 - **Group Lobby Mode:** Allow friends to scan a QR code and join a collaborative voting lobby to pick a restaurant (requires a lightweight WebSocket backend).
-- **Dietary Restriction Profiles:** Save profiles (e.g., Vegan, Gluten-Free, Halal) to auto-apply exclusions.
 - **Budget Gamification:** "Budget Challenge" modes to find the best-rated foods under $10.
 
 ---
