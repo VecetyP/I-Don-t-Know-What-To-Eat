@@ -649,6 +649,9 @@ function setupEventListeners() {
   const mapDebugBtn = document.getElementById("mapDebugBtn");
   if (mapDebugBtn) mapDebugBtn.addEventListener("click", openDebugModal);
   document.getElementById("closeDebugModalBtn").addEventListener("click", closeDebugModal);
+  document.getElementById("debugModal").addEventListener("click", (e) => {
+    if (e.target.id === "debugModal") closeDebugModal();
+  });
   document.getElementById("retryMapBtn").addEventListener("click", () => {
     closeDebugModal();
     loadGoogleMapsScript();
@@ -1621,11 +1624,19 @@ function handleAddSpotSubmit(e) {
 // Google Maps Diagnostics Engine
 function openDebugModal() {
   renderDiagnostics();
-  document.getElementById("debugModal").classList.add("active");
+  const modal = document.getElementById("debugModal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    modal.classList.add("active");
+  }
 }
 
 function closeDebugModal() {
-  document.getElementById("debugModal").classList.remove("active");
+  const modal = document.getElementById("debugModal");
+  if (modal) {
+    modal.classList.remove("active");
+    modal.classList.remove("hidden");
+  }
 }
 
 function renderDiagnostics() {
