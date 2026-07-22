@@ -72,6 +72,10 @@ The web application operates entirely client-side for ease of deployment, fast p
   - Removed popup modal inner scrollbar by compacting vertical paddings and details grid.
   - Relocated Sort By dropdown inside the Restaurant List tab header and removed extra scrollbars on Wheel tab.
   - Removed Food Slots feature completely across HTML, CSS, JS, and project documentation.
+- Mobile & Deployment Enhancements:
+  - Published repository to GitHub ([VecetyP/I-Don-t-Know-What-To-Eat](https://github.com/VecetyP/I-Don-t-Know-What-To-Eat)).
+  - Added `vercel.json` and `package.json` build scripts for Vercel deployment.
+  - Fixed mobile touch scrolling by enabling `overflow-y: auto !important` and native `-webkit-overflow-scrolling: touch` under `@media (max-width: 1100px)`.
 
 ---
 
@@ -81,6 +85,7 @@ The web application operates entirely client-side for ease of deployment, fast p
 |---------|-----------------|
 | Handling missing Google Maps API keys gracefully | Implemented a dedicated MapManager in `app.js` that checks for Google Maps loading status and automatically renders a beautiful, interactive SVG fallback map if the script fails to load or no key is provided. |
 | Audio feedback without external MP3 asset dependency | Built a pure Web Audio API synthesizer in `app.js` that generates lightweight oscillator ticks, reel lock tones, and multi-note victory chimes directly in code. |
+| Locked scrolling on mobile phones | Changed `html, body`, `.app-container`, and `.app-workspace` under mobile media queries to `overflow-y: auto !important`, `height: auto !important`, and `-webkit-overflow-scrolling: touch` to allow smooth native vertical scrolling on iOS and Android. |
 
 ---
 
